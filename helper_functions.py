@@ -19,7 +19,7 @@ import mplfinance as mpf
 import datetime
 import time
 
-personal_list = []
+personal_list = ['BIOCON.NS','COLPAL.NS']
 
 # User Inputs for live data or not
 def get_user_inputs():
@@ -447,7 +447,7 @@ def technical_scoring_function(mode = 'all', period = -2, live = 'no', csv_file 
                 data, levels, plot_sup_res = finding_signals_from_data(data, time_period_multiplier = 1)
             else:
                 data, levels, plot_sup_res = finding_signals_from_data(data, time_period_multiplier = tpm)
-            data = plot_graph(data, g_type, mode = 'scoring')
+            data = plot_graph(data, g_type, plot_sup_res, mode = 'scoring')
 
 
             technical_score_column_list = []
@@ -561,7 +561,7 @@ def long_term_trend_scoring_function(mode = 'all', period = -30, live = 'no', cs
                 data, levels, plot_sup_res = finding_signals_from_data(data)
             else:
                 data, levels, plot_sup_res = finding_signals_from_data(data, time_period_multiplier = tpm)
-            data = plot_graph(data, g_type, mode = 'scoring')
+            data = plot_graph(data, g_type, plot_sup_res, mode = 'scoring')
 
 
             technical_score_column_list = []
