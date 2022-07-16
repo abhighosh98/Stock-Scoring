@@ -605,3 +605,227 @@ def long_term_trend_scoring_function(mode = 'all', period = -30, live = 'no', cs
             if(technical_score_df['final_score_technical_Volume'].isna().sum() != abs(period)):
                 neg_score_company[ticker] = sum(technical_score_df.drop(columns = ['final_score_technical_Volume']).sum(axis = 1).values) -1
         return(technical_score_df, data)
+
+def calculate_financial_ratios(temp_ticker, term = 365):
+    try:
+        test_income_statement = yf.Ticker(temp_ticker).financials/10000000
+        test_balance_sheet = yf.Ticker(temp_ticker).balance_sheet/10000000
+        temp_gen_info = yf.Ticker(temp_ticker).info
+        
+        # Current and Previous year financials
+        bs_curr_year = test_balance_sheet.iloc[:,0]
+        is_curr_year = test_income_statement.iloc[:,0]
+        bs_prev_year = test_balance_sheet.iloc[:,1]
+        is_prev_year = test_income_statement.iloc[:,1]
+    except:
+        print(temp_ticker, ' Could not get data')
+    
+    fr_dict = {}
+    
+    
+    
+
+    try:
+        # Balance Sheet
+        try:
+            current_assets = bs_curr_year['Total Current Assets']
+        except:
+            current_assets = np.nan
+        #current_assets = bs_curr_year['Total Current Assets']
+
+        try:
+            current_liabilities = bs_curr_year['Total Current Liabilities']
+        except:
+            current_liabilities = np.nan  
+        #current_liabilities = bs_curr_year['Total Current Liabilities']
+
+        try:
+            cash = bs_curr_year['Cash']
+        except:
+            cash = np.nan 
+        #cash = bs_curr_year['Cash']
+
+        try:
+            short_term_investments = bs_curr_year['Short Term Investments']
+        except:
+            short_term_investments = np.nan
+
+        try:
+            accounts_receivable = bs_curr_year['Net Receivables']
+        except:
+            accounts_receivable = np.nan
+
+        try:
+            inventory = bs_curr_year['Accounts Payable']
+        except:
+            inventory = np.nan
+
+        try:
+            accounts_payable = bs_curr_year['Accounts Payable']
+        except:
+            accounts_payable = np.nan
+        #accounts_payable = bs_curr_year['Accounts Payable']
+        total_equity = (bs_curr_year['Total Stockholder Equity'] + bs_prev_year['Total Stockholder Equity'])/2
+        total_assets = bs_curr_year['Total Assets']
+        total_liabilities = bs_curr_year['Total Liab']
+        non_current_liabilities = total_liabilities - current_liabilities
+        ppe = bs_curr_year['Property Plant Equipment']
+
+
+
+        # Income Statement
+        revenue = is_curr_year['Total Revenue']    
+        cogs = is_curr_year['Cost Of Revenue']
+        gross_profit = is_curr_year['Gross Profit']
+        operating_income = is_curr_year['Operating Income']
+        income_before_tax = is_curr_year['Income Before Tax']
+        net_income = is_curr_year['Net Income']
+        income_tax_expense = is_curr_year['Income Tax Expense']
+        ebit = is_curr_year['Ebit']
+        interest_expense = abs(is_curr_year['Interest Expense'])
+        operating_income = is_curr_year['Operating Income']
+
+
+        # Liquidity Measurement Ratios
+        fr_dict['current_ratio'] = current_assets/current_liabilities # A current ratio of 1.0 or greater is an indication that the company is well-positioned to cover its current or short-term liabilities.
+        fr_dict['DSO'] = (accounts_receivable/revenue)*term #DSO tells you how many days after the sale it takes people to pay you on average.
+        try:
+            fr_dict['DIO'] = (inventory/cogs)*term #DIO tells you how many days inventory sits on the shelf on average.
+        except:
+            fr_dict['DIO'] = np.nan
+        fr_dict['operating_cycle'] = fr_dict['DSO'] + fr_dict['DIO'] # (DSO + DIO )Basically the Operating Cycle tells you how many days it takes for something to go from first being in inventory to receiving the cash after the sale.
+        try:
+            fr_dict['DPO'] = (accounts_payable/cogs)*term #DPO tells you how many days the company takes to pay its suppliers.
+        except:
+            fr_dict['DPO'] = np.nan
+        fr_dict['CCC'] = fr_dict['operating_cycle'] - fr_dict['DPO'] #The cash conversion cycle (CCC = DSO + DIO – DPO) measures the number of days a company's cash is tied up in the production and sales process of its operations and the benefit it derives from payment terms from its creditors. The shorter this cycle, the more liquid the company's working capital position is. The CCC is also known as the "cash" or "operating" cycle.
+
+        # Profitability Indicator Ratios
+        fr_dict['gross_profit_margin'] = gross_profit / revenue # You can think of it as the amount of money from product sales left over after all of the direct costs associated with manufacturing the product have been paid.
+        fr_dict['operating_profit_margin'] = operating_income / revenue # If companies can make enough money from their operations to support the business, the company is usually considered more stable.
+        fr_dict['pretax_profit_margin'] = income_before_tax / revenue #Profit is the main goal of for-profit organizations. The goal is to make a profit through growth and to grow every year. As a result, one of the most important roles of the financial and investment analyst is to track and forecast profitability.
+        fr_dict['net_profit_margin'] = net_income / revenue # Generally, a net profit margin in excess of 10% is considered excellent, though it depends on the industry and the structure of the business.
+        fr_dict['effective_tax_rate'] = income_tax_expense / income_before_tax # If there’s one takeaway, it should be that a company’s tax situation is all but a living, breathing organism in its own right.
+        fr_dict['return_on_assets'] = net_income / total_assets # ROA Return on assets gives an indication of the capital intensity of the company, which will depend on the industry; companies that require large initial investments will generally have lower return on assets. ROAs over 5% are generally considered good.
+        fr_dict['ROCE'] = ebit / (total_assets - current_liabilities) # ROCE shows investors how many dollars in profits each dollar of capital employed generates.
+
+        # Debt Ratios
+        fr_dict['debt_ratio'] = total_liabilities / total_assets #T he debt ratio tells us the degree of leverage used by the company.
+        fr_dict['interest_coverage_ratio'] = ebit / interest_expense # The lower a company’s interest coverage ratio is, the more its debt expenses burden the company.
+
+        # Operating Performance Ratios
+        fr_dict['fixed_asset_turnover'] = revenue / ppe # Calculates how efficiently a company is a producing sales with its machines and equipment.
+        fr_dict['asset_turnover'] = revenue / total_assets # The Asset Turnover ratio can often be used as an indicator of the efficiency with which a company is deploying its assets in generating revenue.
+
+
+        #in-built ratios
+        try:
+            fr_dict['twoHundredDayAverage'] = temp_gen_info['twoHundredDayAverage']
+        except:
+            fr_dict['twoHundredDayAverage'] = np.nan
+        #fr_dict['twoHundredDayAverage'] = temp_gen_info['twoHundredDayAverage']
+
+        try:
+            fr_dict['payoutRatio'] = temp_gen_info['payoutRatio']
+        except:
+            fr_dict['payoutRatio'] = np.nan
+        #fr_dict['payoutRatio'] = temp_gen_info['payoutRatio']
+
+        try:
+            fr_dict['fiftyDayAverage'] = temp_gen_info['fiftyDayAverage']
+        except:
+            fr_dict['fiftyDayAverage'] = np.nan
+        #fr_dict['fiftyDayAverage'] = temp_gen_info['fiftyDayAverage']
+
+        try:
+            fr_dict['trailingAnnualDividendRate'] = temp_gen_info['trailingAnnualDividendRate']
+        except:
+            fr_dict['trailingAnnualDividendRate'] = np.nan
+        #fr_dict['trailingAnnualDividendRate'] = temp_gen_info['trailingAnnualDividendRate']
+
+        try:
+            fr_dict['dividendRate'] = temp_gen_info['dividendRate']
+        except:
+            fr_dict['dividendRate'] = np.nan
+        #fr_dict['dividendRate'] = temp_gen_info['dividendRate']
+
+        try:
+            fr_dict['trailing_PE'] = temp_gen_info['trailingPE']
+        except:
+            fr_dict['trailing_PE'] = np.nan
+        #fr_dict['trailing_PE'] = temp_gen_info['trailingPE']
+
+        try:
+            fr_dict['market_cap'] = temp_gen_info['marketCap']
+        except:
+            fr_dict['market_cap'] = np.nan
+        #fr_dict['market_cap'] = temp_gen_info['marketCap']
+
+        try:
+            fr_dict['priceToSalesTrailing12Months'] = temp_gen_info['priceToSalesTrailing12Months']
+        except:
+            fr_dict['priceToSalesTrailing12Months'] = np.nan
+        #fr_dict['priceToSalesTrailing12Months'] = temp_gen_info['priceToSalesTrailing12Months']
+
+        try:
+            fr_dict['forward_PE'] = temp_gen_info['forwardPE']
+        except:
+            fr_dict['forward_PE'] = np.nan
+        #fr_dict['forward_PE'] = temp_gen_info['forwardPE']
+
+        try:
+            fr_dict['fiftyTwoWeekHigh'] = temp_gen_info['fiftyTwoWeekHigh']
+        except:
+            fr_dict['fiftyTwoWeekHigh'] = np.nan
+        #fr_dict['fiftyTwoWeekHigh'] = temp_gen_info['fiftyTwoWeekHigh']
+
+        try:
+            fr_dict['fiftyTwoWeekLow'] = temp_gen_info['fiftyTwoWeekLow']
+        except:
+            fr_dict['fiftyTwoWeekLow'] = np.nan
+        #fr_dict['fiftyTwoWeekLow'] = temp_gen_info['fiftyTwoWeekLow']
+
+        try:
+            fr_dict['enterpriseToRevenue'] = temp_gen_info['enterpriseToRevenue']
+        except:
+            fr_dict['enterpriseToRevenue'] = np.nan
+        #fr_dict['enterpriseToRevenue'] = temp_gen_info['enterpriseToRevenue']
+
+        try:
+            fr_dict['profitMargins'] = temp_gen_info['profitMargins']
+        except:
+            fr_dict['profitMargins'] = np.nan
+        #fr_dict['profitMargins'] = temp_gen_info['profitMargins']
+
+        try:
+            fr_dict['enterpriseToEbitda'] = temp_gen_info['enterpriseToEbitda']
+        except:
+            fr_dict['enterpriseToEbitda'] = np.nan
+        #fr_dict['enterpriseToEbitda'] = temp_gen_info['enterpriseToEbitda']
+
+        try:
+            fr_dict['trailing_EPS'] = temp_gen_info['trailingEps']
+        except:
+            fr_dict['trailing_EPS'] = np.nan
+        fr_dict['forward_EPS'] = temp_gen_info['forwardEps']
+        fr_dict['bookValue'] = temp_gen_info['bookValue']
+        fr_dict['priceToBook'] = temp_gen_info['priceToBook']
+        fr_dict['cmp'] = temp_gen_info['regularMarketPrice']
+    except:
+        print(temp_ticker," Errored out")
+    return(fr_dict)
+
+def create_df_of_financial_ratios(csv_file = 'n200.csv'):
+    frames = []
+    n50 = pd.read_csv(csv_file)
+    n50 = n50[['Industry', 'Symbol']]
+    n50['Symbol'] = n50['Symbol'].apply(lambda x: x + '.NS')
+    i=1
+    for sector, t in n50.values:
+        print(i, t)
+        i = i + 1
+        ratio_data_single_ticker = calculate_financial_ratios(t)
+        temp_df = pd.DataFrame(ratio_data_single_ticker, index=[t])
+        temp_df['Sector'] = sector
+        frames.append(temp_df)
+    return(pd.concat(frames))
