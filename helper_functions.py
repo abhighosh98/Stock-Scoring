@@ -68,6 +68,8 @@ def pull_price_data(live, stock_ticker, mode = 'normal'):
     elif(live == 'max'):
         if(mode == 'scoring'):
             interval = '1w'# 1 week interval does not work yet. 
+        elif(mode == 'backtest'):
+            interval = '1d'
         else:
             interval = input("Enter interval(1d, 1wk)")
         data = yf.download(tickers=ticker, period = 'max', interval=interval)
@@ -829,3 +831,9 @@ def create_df_of_financial_ratios(csv_file = 'n200.csv'):
         temp_df['Sector'] = sector
         frames.append(temp_df)
     return(pd.concat(frames))
+
+def check_total_for_getting_sign_of_volume(x):
+    if(x < 0):
+        return(-1)
+    if(x > 0):
+        return(1)
