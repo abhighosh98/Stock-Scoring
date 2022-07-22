@@ -1,23 +1,12 @@
-#Ticker Codes
-from nsetools import Nse
 # Raw Package
 import numpy as np
 import pandas as pd
 #Data Source
 import yfinance as yf
-#Data viz
-import plotly.graph_objs as go
-#pywidget
-import ipywidgets as widget
-from IPython.display import display
 import talib
-import trendln
-import plotly.graph_objects as go
-import plotly.express as px
-import matplotlib.pyplot as plt
 import mplfinance as mpf
 import datetime
-import time
+
 
 personal_list = ['BIOCON.NS','COLPAL.NS']
 
@@ -837,3 +826,63 @@ def check_total_for_getting_sign_of_volume(x):
         return(-1)
     if(x > 0):
         return(1)
+
+def backtest(period = 2, csv_file = 'n100.csv'):
+    profit_dict = {} # {Company : Profit }
+    if(csv_file == 'NASDAQ 100 Tickers.csv'):
+        ticker_list = []
+        n_companies = pd.read_csv(csv_file) # Getting tickers from csv
+        for t in n_companies['Symbol'].values:
+            ticker_list.append(t)
+    else:
+        ticker_list = []
+        n_companies = pd.read_csv(csv_file) # Getting tickers from csv
+        for t in n_companies['Symbol'].values:
+            ticker_list.append(t+'.NS') # Need to add .NS to get Nifty data
+    # print(ticker_list)
+    for t in ticker_list:
+    # for t in ['ABBOTINDIA.NS', 'ADANIGREEN.NS']:
+        # Get Data
+        # live, g_type = get_user_inputs()
+        data = pull_price_data(live = 'max', stock_ticker = t, mode = 'backtest')
+        # print(data.index[-1])
+        try:
+            data, levels, plot_sup_res = finding_signals_from_data(data, time_period_multiplier = 1)
+        except:
+            print(t, "Could not get data")
+            continue
+
+        data = data[data['Close'].notna()]
+        # plot_graph(data, g_type='line', mode = 'quick', plot_sup_res = plot_sup_res)
+        data = plot_graph(data, g_type = 'line', plot_sup_res = plot_sup_res, mode = 'scoring')
+
+
+        # Scores
+        technical_score_column_list = []
+        for col in data.columns:
+            if(col.startswith('final_score_technical')):
+                technical_score_column_list.append(col)
+        req_col = ['Open', 'High', 'Low', 'Close', 'Adl Close', 'Volume',
+                  'current_trend']
+        # Fixing volume score according to sum (+ve or -ve)
+        data['final_score_technical_Volume'] = data['final_score_technical_Volume'] * data[technical_score_column_list].drop(columns = ['final_score_technical_Volume']).sum(axis = 1).apply(check_total_for_getting_sign_of_volume)
+        positive_signal_days = np.where(data[technical_score_column_list].sum(axis = 1) >= 4)
+        negative_signal_days = np.where(data[technical_score_column_list].sum(axis = 1) <= -4)
+    #     print("Positive Signal\n",data.iloc[positive_signal_days].index, data.iloc[positive_signal_days][technical_score_column_list].sum(axis = 1))
+    #     print("\n\nNegative Signal",data.iloc[negative_signal_days].index, data.iloc[negative_signal_days][technical_score_column_list].sum(axis = 1))
+
+
+        profits = []
+        for d in positive_signal_days[0]:
+            try:
+                profits.append(((data.iloc[d + period]['Close'] - data.iloc[d]['Close']) / data.iloc[d]['Close']) * 100)
+            except:
+                print("Could not perform", d)
+        try:
+            profit_dict[t] = sum(profits) / len(profits)
+        except:
+            print(t, "division error during appending")
+            continue
+    #     print(profits)
+        print(t, "Done")
+    return(profit_dict)
