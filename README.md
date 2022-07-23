@@ -28,5 +28,5 @@ Profit Stats for Nifty 200<br>
 ![Profit Stats for Nifty 200](https://drive.google.com/uc?export=view&id=1ZqIp5TgO4qZLrZsG8CxJ4ZPzYpEd-eq4)
 
 Profit Stats for NASDAQ 100<br>
-![Profit Stats for NASDAQ 100](1g5bRbpO58suBasxXkNz2kDEnXU_kRh_Q)
+![Profit Stats for NASDAQ 100](https://drive.google.com/uc?export=view&id=1g5bRbpO58suBasxXkNz2kDEnXU_kRh_Q)
 
