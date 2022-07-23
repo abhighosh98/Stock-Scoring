@@ -21,8 +21,11 @@ Libraries Used(Python 3.8.5):
 8. [matplotlib](https://matplotlib.org/)
 
 # Results
-![Profit Stats for Nifty 50](https://drive.google.com/uc?export=view&id=1qtV2jcKBxRLfxaLOnasfETooZie6ale)
+Profit Stats for Nifty 50
+![Profit Stats for Nifty 50](https://drive.google.com/uc?export=view&id=1qtV2jcKBxRLfxaLOnasfETooZie6ale-)
 
+Profit Stats for Nifty 200
 ![Profit Stats for Nifty 200](https://drive.google.com/uc?export=view&id=1ZqIp5TgO4qZLrZsG8CxJ4ZPzYpEd-eq4)
 
 ![Profit Stats for NASDAQ 100]()
+
