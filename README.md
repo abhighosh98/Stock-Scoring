@@ -6,9 +6,9 @@ This project uses
 3. Bollinger Bands
 4. Support/ Resistance Lines
 5. Volume
-6. Candlesticks
+6. Candlesticks<br>
 to give a score for a particular stock. The higher the score, higher the likelihood of a profit in the next few days. The exact number of days can be 
-determined using a backtest function which can be run for either Nifty50, Nifty100, Nifty 200 or NASDAQ100 stocks. 
+determined using a backtest function which can be run for either Nifty50, Nifty200, Nifty 500 or NASDAQ100 stocks. 
 
 Libraries Used(Python 3.8.5):
 1. [nsetools](https://pypi.org/project/nsetools/)
@@ -20,3 +20,9 @@ Libraries Used(Python 3.8.5):
 7. [ipywidgets](https://ipywidgets.readthedocs.io/en/stable/)
 8. [matplotlib](https://matplotlib.org/)
 
+# Results
+![Profit Stats for Nifty 50](https://drive.google.com/uc?export=view&id=1qtV2jcKBxRLfxaLOnasfETooZie6ale)
+
+![Profit Stats for Nifty 200](https://drive.google.com/uc?export=view&id=1ZqIp5TgO4qZLrZsG8CxJ4ZPzYpEd-eq4)
+
+![Profit Stats for NASDAQ 100]()
