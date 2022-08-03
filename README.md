@@ -1,13 +1,14 @@
 # Stock Scoring
 
-This project uses 
+This project uses the following indicators:
 1. MACD
 2. RSI
 3. Bollinger Bands
 4. Support/ Resistance Lines
 5. Volume
 6. Candlesticks<br>
-to give a score for a particular stock. The higher the score, higher the likelihood of a profit in the next few days. The exact number of days can be 
+
+When certain conditions are met for each of these indicators, a +ve or -ve score is assigned to that row of the dataframe. The sum of these scores determines the overall trend for the stock. The higher the score, higher the likelihood of a profit in the next few days. The exact number of days can be 
 determined using a backtest function which can be run for either Nifty50, Nifty200, Nifty 500 or NASDAQ100 stocks. 
 
 Libraries Used(Python 3.8.5):
@@ -30,3 +31,4 @@ Profit Stats for Nifty 200<br>
 Profit Stats for NASDAQ 100<br>
 ![Profit Stats for NASDAQ 100](https://drive.google.com/uc?export=view&id=1g5bRbpO58suBasxXkNz2kDEnXU_kRh_Q)
 
+    
