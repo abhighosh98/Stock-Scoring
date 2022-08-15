@@ -597,11 +597,16 @@ def long_term_trend_scoring_function(mode = 'all', period = -30, live = 'no', cs
                 neg_score_company[ticker] = sum(technical_score_df.drop(columns = ['final_score_technical_Volume']).sum(axis = 1).values) -1
         return(technical_score_df, data)
 
-def calculate_financial_ratios(temp_ticker, term = 365):
+def calculate_financial_ratios(temp_ticker, quarterly, term = 365):
     try:
-        test_income_statement = yf.Ticker(temp_ticker).financials/10000000
-        test_balance_sheet = yf.Ticker(temp_ticker).balance_sheet/10000000
-        temp_gen_info = yf.Ticker(temp_ticker).info
+        if(quarterly == "no")
+            test_income_statement = yf.Ticker(temp_ticker).financials/10000000
+            test_balance_sheet = yf.Ticker(temp_ticker).balance_sheet/10000000
+            temp_gen_info = yf.Ticker(temp_ticker).info
+        else:
+            test_income_statement = yf.Ticker(temp_ticker).quarterly_financials/10000000
+            test_balance_sheet = yf.Ticker(temp_ticker).quarterly_balance_sheet/10000000
+            temp_gen_info = yf.Ticker(temp_ticker).info
         
         # Current and Previous year financials
         bs_curr_year = test_balance_sheet.iloc[:,0]
@@ -806,7 +811,7 @@ def calculate_financial_ratios(temp_ticker, term = 365):
         print(temp_ticker," Errored out")
     return(fr_dict)
 
-def create_df_of_financial_ratios(csv_file = 'n200.csv'):
+def create_df_of_financial_ratios(csv_file = 'n200.csv', quarterly = "no"):
     frames = []
     n50 = pd.read_csv(csv_file)
     n50 = n50[['Industry', 'Symbol']]
@@ -815,7 +820,7 @@ def create_df_of_financial_ratios(csv_file = 'n200.csv'):
     for sector, t in n50.values:
         print(i, t)
         i = i + 1
-        ratio_data_single_ticker = calculate_financial_ratios(t)
+        ratio_data_single_ticker = calculate_financial_ratios(t, quarterly = quarterly)
         temp_df = pd.DataFrame(ratio_data_single_ticker, index=[t])
         temp_df['Sector'] = sector
         frames.append(temp_df)
