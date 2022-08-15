@@ -599,7 +599,7 @@ def long_term_trend_scoring_function(mode = 'all', period = -30, live = 'no', cs
 
 def calculate_financial_ratios(temp_ticker, quarterly, term = 365):
     try:
-        if(quarterly == "no")
+        if(quarterly == "no"):
             test_income_statement = yf.Ticker(temp_ticker).financials/10000000
             test_balance_sheet = yf.Ticker(temp_ticker).balance_sheet/10000000
             temp_gen_info = yf.Ticker(temp_ticker).info
